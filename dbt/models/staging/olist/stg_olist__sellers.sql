@@ -8,9 +8,9 @@ renamed as (
         seller_id,
         
         -- Categorical Info
-        seller_zip_code_prefix,
-        seller_city,
-        seller_state
+        seller_zip_code_prefix as zip_code_prefix,
+        seller_city as city,
+        seller_state as state
 
     from source
 )
