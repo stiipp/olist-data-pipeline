@@ -1,0 +1,16 @@
+version: 2
+
+sources:
+  - name: olist
+    database: olist
+    schema: olist_raw  # The schema where Python script loaded the raw data
+    tables:
+      - name: olist_customers
+      - name: olist_orders
+      - name: olist_products
+      - name: olist_order_items
+      - name: olist_order_payments
+      - name: olist_order_reviews
+      - name: olist_sellers
+      - name: olist_geolocation
+      - name: product_category_name_translation
