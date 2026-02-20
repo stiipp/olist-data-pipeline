@@ -8,7 +8,7 @@ final as (
         seller_id,
         
         -- Location Attributes
-        seller_zip_code_prefix,
+        zip_code_prefix,
         seller_city,
         seller_state
         

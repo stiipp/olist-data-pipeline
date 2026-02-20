@@ -13,7 +13,7 @@ final as (
         -- Location Attributes
         zip_code_prefix,
         city,
-        state
+        state as customer_state
         
     from customers
 )
