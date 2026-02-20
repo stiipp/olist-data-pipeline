@@ -38,6 +38,17 @@ models:
 
       - name: order_status
         description: "Current status of the order (e.g., delivered, shipped, canceled)"
+        tests:
+          - accepted_values:
+              values:
+                - "delivered"
+                - "shipped"
+                - "canceled"
+                - "unavailable"
+                - "processing"
+                - "invoiced"
+                - "created"
+                - "approved"
 
       - name: purchased_at
         description: "Timestamp when the order was placed"
@@ -72,12 +83,24 @@ models:
         description: "Quantity of photos available for the product"
       - name: weight_g
         description: "Weight of the product in grams"
+        tests:
+          - dbt_utils.expression_is_true:
+              expression: "is null or weight_g >= 0"
       - name: length_cm
         description: "Length of the product in centimeters"
+        tests:
+          - dbt_utils.expression_is_true:
+              expression: "is null or length_cm > 0"
       - name: height_cm
         description: "Height of the product in centimeters"
+        tests:
+          - dbt_utils.expression_is_true:
+              expression: "is null or height_cm > 0"
       - name: width_cm
         description: "Width of the product in centimeters"
+        tests:
+          - dbt_utils.expression_is_true:
+              expression: "is null or width_cm > 0"
   - name: stg_olist__sellers
     description: "Staging model for seller data"
     columns:
@@ -95,6 +118,11 @@ models:
 
   - name: stg_olist__order_items
     description: "Staging model for order line items"
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - order_id
+            - order_item_id
     columns:
       - name: order_id
         description: "Part of composite primary key"
@@ -121,12 +149,25 @@ models:
 
       - name: price
         description: "Price of the product in the order item"
+        tests:
+          - not_null
+          - dbt_utils.expression_is_true:
+              expression: ">= 0"
 
       - name: freight_value
         description: "Freight value for the order item"
+        tests:
+          - not_null
+          - dbt_utils.expression_is_true:
+              expression: ">= 0"
 
   - name: stg_olist__payments
     description: "Staging model for payment data"
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - order_id
+            - payment_sequential
     columns:
       - name: order_id
         description: "Foreign key to orders"
@@ -135,15 +176,32 @@ models:
 
       - name: payment_sequential
         description: "Sequential number of the payment for the order"
+        tests:
+          - not_null
 
       - name: payment_type
         description: "Payment method used (e.g., credit_card, boleto)"
+        tests:
+          - accepted_values:
+              values:
+                - "credit_card"
+                - "boleto"
+                - "voucher"
+                - "debit_card"
+                - "not_defined"
 
       - name: payment_installments
         description: "Number of installments for the payment"
+        tests:
+          - dbt_utils.expression_is_true:
+              expression: ">= 0"
 
       - name: payment_value
         description: "Total value of the payment"
+        tests:
+          - not_null
+          - dbt_utils.expression_is_true:
+              expression: ">= 0"
 
   - name: stg_olist__reviews
     description: "Staging model for review data"
@@ -160,6 +218,9 @@ models:
 
       - name: review_score
         description: "Score given in the review (1 to 5)"
+        tests:
+          - accepted_values:
+              values: [1, 2, 3, 4, 5]
 
       - name: comment_title
         description: "Title of the review comment"
