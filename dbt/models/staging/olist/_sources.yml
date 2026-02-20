@@ -1,16 +1,144 @@
 version: 2
-
+macros:
+  - name: generate_custom_schema
+    description: This macro returns the custom schema name for the Olist project, which is 'olist_staging'. It can be used in models to dynamically set the schema for staging tables.
 sources:
   - name: olist
     database: olist
-    schema: olist_raw  # The schema where Python script loaded the raw data
+    schema: olist_raw # The schema where Python script loaded the raw data
     tables:
       - name: olist_customers
+        description: This table contains information about the customers who made purchases on the Olist platform. Each record represents a unique customer, identified by a customer_id, and includes details such as their unique identifier across all orders, zip code prefix, city, and state.
+        columns:
+          - name: customer_id
+            description: The unique identifier for each customer.
+          - name: customer_unique_id
+            description: The unique identifier for each customer across all orders.
+          - name: customer_zip_code_prefix
+            description: The prefix of the customer's zip code.
+          - name: customer_city
+            description: The city where the customer is located.
+          - name: customer_state
+            description: The state where the customer is located.t
       - name: olist_orders
+        description: This table contains information about the orders placed on the Olist platform. Each record represents a unique order, identified by an order_id, and includes details such as the customer_id of the customer who placed the order, the current status of the order, timestamps for when the order was placed, approved, delivered to the carrier, delivered to the customer, and the estimated delivery date.
+        columns:
+          - name: order_id
+            description: The unique identifier for each order.
+          - name: customer_id
+            description: The unique identifier for the customer who placed the order.
+          - name: order_status
+            description: The current status of the order (e.g., delivered, shipped, canceled).
+          - name: order_purchase_timestamp
+            description: The timestamp when the order was placed.
+          - name: order_approved_at
+            description: The timestamp when the order was approved.
+          - name: order_delivered_carrier_date
+            description: The timestamp when the order was delivered to the carrier.
+          - name: order_delivered_customer_date
+            description: The timestamp when the order was delivered to the customer.
+          - name: order_estimated_delivery_date
+            description: The estimated delivery date for the order.
       - name: olist_products
+        description: This table contains information about the products available on the Olist platform. Each record represents a unique product, identified by a product_id, and includes details such as the category name, length of the product name and description, quantity of photos available, weight in grams, and dimensions in centimeters (length, height, width).
+        columns:
+          - name: product_id
+            description: The unique identifier for each product.
+          - name: product_category_name
+            description: The category name of the product.
+          - name: product_name_lenght
+            description: The length of the product name.
+          - name: product_description_lenght
+            description: The length of the product description.
+          - name: product_photos_qty
+            description: The quantity of photos available for the product.
+          - name: product_weight_g
+            description: The weight of the product in grams.
+          - name: product_length_cm
+            description: The length of the product in centimeters.
+          - name: product_height_cm
+            description: The height of the product in centimeters.
+          - name: product_width_cm
+            description: The width of the product in centimeters.
       - name: olist_order_items
+        description: This table contains information about the items included in each order on the Olist platform. Each record represents a unique order item, identified by a combination of order_id and product_id, and includes details such as the seller_id of the seller providing the product, the price of the product in the order item, and the freight value for the order item.
+        columns:
+          - name: order_id
+            description: The unique identifier for the order to which the item belongs.
+          - name: order_item_id
+            description: The sequential number of the item within the order.
+          - name: product_id
+            description: The unique identifier for the product in the order item.
+          - name: seller_id
+            description: The unique identifier for the seller of the product in the order item.
+          - name: shipping_limit_date
+            description: The date by which the order item should be shipped.
+          - name: price
+            description: The price of the product in the order item.
+          - name: freight_value
+            description: The freight value for the order item.
       - name: olist_order_payments
+        description: This table contains information about the payments made for each order on the Olist platform. Each record represents a unique payment, identified by a combination of order_id and payment_sequential, and includes details such as the type of payment, number of installments, and the value of the payment.
+        columns:
+          - name: order_id
+            description: The unique identifier for the order to which the payment belongs.
+          - name: payment_sequential
+            description: The sequential number of the payment for the order.
+          - name: payment_type
+            description: The type of payment (e.g., credit_card, boleto, voucher).
+          - name: payment_installments
+            description: The number of installments for the payment.
+          - name: payment_value
+            description: The value of the payment.
       - name: olist_order_reviews
+        description: This table contains information about the reviews left by customers for their orders on the Olist platform. Each record represents a unique review, identified by a review_id, and includes details such as the order_id of the order being reviewed, the score given in the review, the title and message of the review comment, and timestamps for when the review was created and answered by the seller.
+        columns:
+          - name: review_id
+            description: The unique identifier for each review.
+          - name: order_id
+            description: The unique identifier for the order to which the review belongs.
+          - name: review_score
+            description: The score given in the review (1 to 5).
+          - name: review_comment_title
+            description: The title of the review comment.
+          - name: review_comment_message
+            description: The message of the review comment.
+          - name: review_creation_date
+            description: The timestamp when the review was created.
+          - name: review_answer_timestamp
+            description: The timestamp when the review was answered by the seller.
       - name: olist_sellers
+        description: This table contains information about the sellers on the Olist platform. Each record represents a unique seller, identified by a seller_id, and includes details such as the prefix of the seller's zip code, city, and state.
+        columns:
+          - name: seller_id
+            description: The unique identifier for each seller.
+          - name: seller_zip_code_prefix
+            description: The prefix of the seller's zip code.
+          - name: seller_city
+            description: The city where the seller is located.
+          - name: seller_state
+            description: The state where the seller is located.
+
       - name: olist_geolocation
+        description: This table contains geolocation information associated with zip code prefixes on the Olist platform. Each record represents a unique geolocation entry, identified by a zip_code_prefix, and includes details such as the latitude and longitude coordinates, city, and state associated with the zip code prefix.
+        columns:
+          - name: geolocation_zip_code_prefix
+            description: The prefix of the zip code for the geolocation record.
+          - name: geolocation_lat
+            description: The latitude coordinate for the geolocation record.
+          - name: geolocation_lng
+            description: The longitude coordinate for the geolocation record.
+          - name: geolocation_city
+            description: The city associated with the geolocation record.
+          - name: geolocation_state
+            description: The state associated with the geolocation record.
+
       - name: product_category_name_translation
+        description: This table contains translations of product category names from Portuguese to English for the Olist platform. Each record represents a unique category name, identified by the original product_category_name in Portuguese, and includes the corresponding translated category name in English.
+        columns:
+          - name: product_category_name
+            description: The original category name of the product in Portuguese.
+            data_type: text
+          - name: product_category_name_english
+            description: The translated category name of the product in English.
+            data_type: text
