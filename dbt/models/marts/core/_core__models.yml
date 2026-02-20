@@ -113,6 +113,7 @@ models:
           - relationships:
               to: ref('dim_sellers')
               field: seller_id
+
       - name: order_item_id
         description: "Identifier for the order item (line item number)"
         tests:
@@ -140,13 +141,19 @@ models:
         description: "Item price"
         tests:
           - not_null
+          - dbt_utils.expression_is_true:
+              expression: ">= 0"
 
       - name: freight_value
         description: "Shipping cost"
         tests:
           - not_null
+          - dbt_utils.expression_is_true:
+              expression: ">= 0"
 
       - name: total_amount
         description: "Total amount (price + freight)"
         tests:
           - not_null
+          - dbt_utils.expression_is_true:
+              expression: ">= 0"
