@@ -12,8 +12,8 @@ final as (
         
         -- Location Attributes
         zip_code_prefix,
-        city,
-        state
+        customer_city,
+        customer_state
         
     from customers
 )

@@ -1,0 +1,202 @@
+version: 2
+
+models:
+  - name: stg_olist__customers
+    description: "Staging model for customer data from Olist"
+    columns:
+      - name: customer_id
+        description: "Primary key - unique identifier for each customer"
+        tests:
+          - unique
+          - not_null
+
+      - name: customer_unique_id
+        description: "Natural key - tracks same customer across multiple IDs"
+
+      - name: zip_code_prefix
+        description: "Customer's zip code prefix"
+
+      - name: customer_city
+        description: "Customer's city"
+
+      - name: customer_state
+        description: "Customer's state code"
+
+  - name: stg_olist__orders
+    description: "Staging model for order data"
+    columns:
+      - name: order_id
+        description: "Primary key - unique order identifier"
+        tests:
+          - unique
+          - not_null
+
+      - name: customer_id
+        description: "Foreign key to customers"
+        tests:
+          - not_null
+
+      - name: order_status
+        description: "Current status of the order (e.g., delivered, shipped, canceled)"
+
+      - name: purchased_at
+        description: "Timestamp when the order was placed"
+
+      - name: approved_at
+        description: "Timestamp when the order was approved"
+
+      - name: delivered_to_carrier_at
+        description: "Timestamp when the order was delivered to the carrier"
+
+      - name: delivered_to_customer_at
+        description: "Timestamp when the order was delivered to the customer"
+
+      - name: estimated_delivery_at
+        description: "Estimated delivery date for the order"
+
+  - name: stg_olist__products
+    description: "Staging model for product data"
+    columns:
+      - name: product_id
+        description: "Primary key - unique product identifier"
+        tests:
+          - unique
+          - not_null
+      - name: category_name
+        description: "Name of the product category"
+      - name: name_length
+        description: "Length of the product name"
+      - name: description_length
+        description: "Length of the product description"
+      - name: photos_quantity
+        description: "Quantity of photos available for the product"
+      - name: weight_g
+        description: "Weight of the product in grams"
+      - name: length_cm
+        description: "Length of the product in centimeters"
+      - name: height_cm
+        description: "Height of the product in centimeters"
+      - name: width_cm
+        description: "Width of the product in centimeters"
+  - name: stg_olist__sellers
+    description: "Staging model for seller data"
+    columns:
+      - name: seller_id
+        description: "Primary key - unique seller identifier"
+        tests:
+          - unique
+          - not_null
+      - name: zip_code_prefix
+        description: "Seller's zip code prefix"
+      - name: seller_city
+        description: "Seller's city"
+      - name: seller_state
+        description: "Seller's state code"
+
+  - name: stg_olist__order_items
+    description: "Staging model for order line items"
+    columns:
+      - name: order_id
+        description: "Part of composite primary key"
+        tests:
+          - not_null
+
+      - name: order_item_id
+        description: "Part of composite primary key"
+        tests:
+          - not_null
+
+      - name: product_id
+        description: "Foreign key to products"
+        tests:
+          - not_null
+      - name: seller_id
+
+        description: "Foreign key to sellers"
+        tests:
+          - not_null
+
+      - name: shipping_limit_date
+        description: "Deadline for shipping the order item"
+
+      - name: price
+        description: "Price of the product in the order item"
+
+      - name: freight_value
+        description: "Freight value for the order item"
+
+  - name: stg_olist__payments
+    description: "Staging model for payment data"
+    columns:
+      - name: order_id
+        description: "Foreign key to orders"
+        tests:
+          - not_null
+
+      - name: payment_sequential
+        description: "Sequential number of the payment for the order"
+
+      - name: payment_type
+        description: "Payment method used (e.g., credit_card, boleto)"
+
+      - name: payment_installments
+        description: "Number of installments for the payment"
+
+      - name: payment_value
+        description: "Total value of the payment"
+
+  - name: stg_olist__reviews
+    description: "Staging model for review data"
+    columns:
+      - name: review_id
+        description: "Primary key - unique review identifier. Deduplicated from original review_id to handle duplicates in source data"
+        tests:
+          - not_null
+
+      - name: order_id
+        description: "Foreign key to orders"
+        tests:
+          - not_null
+
+      - name: review_score
+        description: "Score given in the review (1 to 5)"
+
+      - name: comment_title
+        description: "Title of the review comment"
+
+      - name: comment_message
+        description: "Message of the review comment"
+
+      - name: created_at
+        description: "Timestamp when the review was created"
+
+      - name: answered_at
+        description: "Timestamp when the review was answered by the seller"
+
+  - name: stg_olist__geolocation
+    description: "Staging model for geolocation data"
+    columns:
+      - name: zip_code_prefix
+        description: "Zip code prefix for geolocation data"
+        tests:
+          - not_null
+      - name: latitude
+        description: "Latitude coordinate for the zip code prefix"
+      - name: longitude
+        description: "Longitude coordinate for the zip code prefix"
+      - name: city
+        description: "City associated with the zip code prefix"
+      - name: state
+        description: "State associated with the zip code prefix"
+
+  - name: stg_olist__category_translation
+    description: "Staging model for product category translations"
+
+    columns:
+      - name: category_name
+        description: "Original product category name in Portuguese"
+        tests:
+          - unique
+          - not_null
+      - name: category_name_english
+        description: "Translated product category name in English"

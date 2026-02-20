@@ -1,0 +1,152 @@
+version: 2
+
+models:
+  - name: dim_customers
+    description: "Customer dimension table"
+    columns:
+      - name: customer_id
+        description: "Primary key - unique customer identifier"
+        tests:
+          - unique
+          - not_null
+
+      - name: customer_unique_id
+        description: "Natural key for tracking customers"
+
+      - name: zip_code_prefix
+        description: "Customer zip code"
+
+      - name: customer_city
+        description: "Customer city"
+
+      - name: customer_state
+        description: "Customer state code"
+
+  - name: dim_products
+    description: "Product dimension table with category translations"
+    columns:
+      - name: product_id
+        description: "Primary key - unique product identifier"
+        tests:
+          - unique
+          - not_null
+
+      - name: category_name
+        description: "Product category name in Portuguese"
+
+      - name: category_name_english
+        description: "Product category name translated to English"
+
+      - name: name_length
+        description: "Length of the product name"
+
+      - name: description_length
+        description: "Length of the product description"
+
+      - name: photos_quantity
+        description: "Quantity of photos available for the product"
+
+      - name: weight_g
+        description: "Weight of the product in grams"
+
+      - name: length_cm
+        description: "Length of the product in centimeters"
+
+      - name: height_cm
+        description: "Height of the product in centimeters"
+
+      - name: width_cm
+        description: "Width of the product in centimeters"
+
+  - name: dim_sellers
+    description: "Seller dimension table"
+    columns:
+      - name: seller_id
+        description: "Primary key - unique seller identifier"
+        tests:
+          - unique
+          - not_null
+
+      - name: zip_code_prefix
+        description: "Seller zip code"
+
+      - name: seller_city
+        description: "Seller city"
+
+      - name: seller_state
+        description: "Seller state code"
+
+  - name: fact_sales
+    description: "Sales fact table. Grain: One row per order item (product sold)"
+    columns:
+      - name: sales_key
+        description: "Surrogate key for each sales transaction"
+        tests:
+          - unique
+          - not_null
+
+      - name: order_id
+        description: "Foreign key to orders"
+        tests:
+          - not_null
+
+      - name: customer_id
+        description: "Foreign key to dim_customers"
+        tests:
+          - not_null
+          - relationships:
+              to: ref('dim_customers')
+              field: customer_id
+
+      - name: product_id
+        description: "Foreign key to dim_products"
+        tests:
+          - not_null
+          - relationships:
+              to: ref('dim_products')
+              field: product_id
+
+      - name: seller_id
+        description: "Foreign key to dim_sellers"
+        tests:
+          - not_null
+          - relationships:
+              to: ref('dim_sellers')
+              field: seller_id
+      - name: order_item_id
+        description: "Identifier for the order item (line item number)"
+        tests:
+          - not_null
+
+      - name: order_status
+        description: "Status of the order (e.g., delivered, canceled)"
+
+      - name: purchased_at
+        description: "Timestamp when the order was placed"
+
+      - name: approved_at
+        description: "Timestamp when the order was approved"
+
+      - name: delivered_to_carrier_at
+        description: "Timestamp when the order was delivered to the carrier"
+
+      - name: delivered_to_customer_at
+        description: "Timestamp when the order was delivered to the customer"
+
+      - name: estimated_delivery_at
+        description: "Estimated delivery date for the order"
+
+      - name: price
+        description: "Item price"
+        tests:
+          - not_null
+
+      - name: freight_value
+        description: "Shipping cost"
+        tests:
+          - not_null
+
+      - name: total_amount
+        description: "Total amount (price + freight)"
+        tests:
+          - not_null
