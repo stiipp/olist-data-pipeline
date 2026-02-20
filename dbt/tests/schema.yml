@@ -1,0 +1,16 @@
+version: 2
+
+data_tests:
+  - name: assert_total_amount_equals_price_plus_freight
+    description: >
+      Validates that the total_amount in fact_sales equals the sum of price and freight_value.
+      This ensures the calculated measure is correct and matches business logic.
+    meta:
+      severity: error
+
+  - name: assert_approved_after_purchased
+    description: >
+      Ensures approved_at timestamp is greater than or equal to purchased_at timestamp.
+      This validates the logical order progression of order lifecycle events.
+    meta:
+      severity: error
