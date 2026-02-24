@@ -195,44 +195,8 @@ Materialized as **tables** in the `olist_analytics` schema. Follows a **star sch
 
 **Star Schema Diagram:**
 
-```
-                    ┌────────────────┐
-                    │ dim_customers  │
-                    │────────────────│
-                    │ customer_id PK │
-                    │ customer_city  │
-                    │ customer_state │
-                    └───────┬────────┘
-                            │
-┌────────────────┐  ┌───────┴────────────────┐  ┌────────────────┐
-│  dim_products  │  │      fact_sales        │  │  dim_sellers   │
-│────────────────│  │────────────────────────│  │────────────────│
-│ product_id  PK │──│ sales_key           PK │──│ seller_id   PK │
-│ category_name  │  │ order_id               │  │ seller_city    │
-│ category_eng   │  │ customer_id         FK │  │ seller_state   │
-│ weight_g       │  │ product_id          FK │  └────────────────┘
-│ dimensions     │  │ seller_id           FK │
-└────────────────┘  │ purchased_date      FK │──┐
-                    │ delivered_date      FK │  │
-                    │ estimated_deliv_dt  FK │  │
-                    │ order_status           │  │
-                    │ purchased_at           │  │
-                    │ price                  │  │
-                    │ freight_value          │  │
-                    │ total_amount           │  │
-                    └────────────────────────┘  │
-                                                │
-                    ┌────────────────┐          │
-                    │   dim_date     │──────────┘
-                    │────────────────│
-                    │ date_day    PK │
-                    │ year           │
-                    │ month          │
-                    │ quarter        │
-                    │ day_of_week    │
-                    │ is_weekend     │
-                    └────────────────┘
-```
+<img width="1158" height="1162" alt="diagrams - Page 4" src="https://github.com/user-attachments/assets/a6476e5b-5207-45cd-8659-7237c0d8c015" />
+
 
 ---
 
@@ -361,3 +325,4 @@ python ingest_olist.py
 | **Airflow write permissions to dbt target** — Airflow worker couldn't write compiled dbt artifacts to the mounted volume       | Set `--target-path /tmp/dbt_target` and `DBT_LOG_PATH=/tmp` to write to writable paths inside the container                                        |
 | **Docker socket access for DockerOperator** — Airflow needed to launch sibling containers                                      | Mounted `/var/run/docker.sock` into the Airflow containers and added the `airflow` user to a `docker` group in the Dockerfile                      |
 | **Source path mismatch** — Ingestion script used a hardcoded relative path instead of the parameterized `source_path` argument | Removed the hardcoded `source_path = "./airflow/datasets"` inside the function and properly used the function parameter                            |
+
