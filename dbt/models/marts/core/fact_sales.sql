@@ -16,6 +16,11 @@ final as (
         o.customer_id,
         oi.product_id,
         oi.seller_id,
+
+        -- Date Foreign Keys (references dim_date)
+        o.purchased_at::date as purchased_date,
+        o.delivered_to_customer_at::date as delivered_date,
+        o.estimated_delivery_at::date as estimated_delivery_date,
         
         -- Order Context
         oi.order_item_id,
