@@ -58,7 +58,7 @@ This project builds a complete data pipeline for the [Olist Brazilian E-Commerce
 │  │                                                              │   │
 │  │  ┌──────────────┐  ┌────────────────┐  ┌─────────────────┐  │   │
 │  │  │  olist_raw    │  │ olist_staging  │  │ olist_analytics │  │   │
-│  │  │  (9 tables)   │→ │  (9 views)    │→ │  (4 tables)     │  │   │
+│  │  │  (9 tables)   │→ │  (9 views)    │→ │  (5 tables)     │  │   │
 │  │  └──────────────┘  └────────────────┘  └─────────────────┘  │   │
 │  └──────────────────────────────────────────────────────────────┘   │
 └─────────────────────────────────────────────────────────────────────┘
@@ -124,7 +124,7 @@ CSV Files ──► Python Ingestion ──► olist_raw (9 tables)
                                         │
                                         ▼
                                   dbt marts layer
-                                  olist_analytics (4 tables)
+                                  olist_analytics (5 tables)
                                         │
                                         ▼
                                   dbt tests (schema + singular)
@@ -132,9 +132,9 @@ CSV Files ──► Python Ingestion ──► olist_raw (9 tables)
 
 **Step 1 — Ingest:** `ingest_olist.py` reads each CSV, checks if the target table already exists, truncates it if so (preserving schema), or creates it fresh. Connection details are configurable via `DB_HOST` and `DB_PORT` environment variables.
 
-**Step 2 — Transform:** dbt builds 9 staging views that clean and rename columns, cast timestamps, round monetary values, and deduplicate reviews. It then builds 4 mart tables (3 dimensions + 1 fact) following a star schema.
+**Step 2 — Transform:** dbt builds 9 staging views that clean and rename columns, cast timestamps, round monetary values, and deduplicate reviews. It then builds 5 mart tables (4 dimensions + 1 fact) following a star schema.
 
-**Step 3 — Test:** dbt runs schema-level tests (unique, not_null, accepted_values, relationships, expression_is_true) and 2 custom singular tests for business rule validation.
+**Step 3 — Test:** dbt runs schema-level tests (unique, not_null, accepted_values, relationships, expression_is_true) and 3 custom singular tests for business rule validation.
 
 ---
 
@@ -180,17 +180,18 @@ Materialized as **tables** in the `olist_analytics` schema. Follows a **star sch
 
 #### Dimension Tables
 
-| Model           | Description                                                                                        |
-| --------------- | -------------------------------------------------------------------------------------------------- |
-| `dim_customers` | Customer dimension with location attributes (city, state, zip code)                                |
-| `dim_products`  | Product dimension with English category translations via join to `stg_olist__category_translation` |
-| `dim_sellers`   | Seller dimension with location attributes                                                          |
+| Model           | Description                                                                                                             |
+| --------------- | ----------------------------------------------------------------------------------------------------------------------- |
+| `dim_customers` | Customer dimension with location attributes (city, state, zip code)                                                     |
+| `dim_products`  | Product dimension with English category translations via join to `stg_olist__category_translation`                      |
+| `dim_sellers`   | Seller dimension with location attributes                                                                               |
+| `dim_date`      | Date dimension derived from order timestamps with calendar attributes (year, month, quarter, day of week, weekend flag) |
 
 #### Fact Table
 
-| Model        | Grain                  | Description                                                                                                                                                                                                                           |
-| ------------ | ---------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `fact_sales` | One row per order item | Joins `stg_olist__order_items` with `stg_olist__orders`; includes surrogate key (`order_id + '-' + order_item_id`), foreign keys to all 3 dimensions, order timestamps, status, `price`, `freight_value`, and computed `total_amount` |
+| Model        | Grain                  | Description                                                                                                                                                                                                                                                                                                                                                              |
+| ------------ | ---------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `fact_sales` | One row per order item | Joins `stg_olist__order_items` with `stg_olist__orders`; includes surrogate key (`order_id + '-' + order_item_id`), foreign keys to all dimensions (customers, products, sellers, dates), date FKs (`purchased_date`, `delivered_date`, `estimated_delivery_date`) for `dim_date` joins, order timestamps, status, `price`, `freight_value`, and computed `total_amount` |
 
 **Star Schema Diagram:**
 
@@ -203,19 +204,33 @@ Materialized as **tables** in the `olist_analytics` schema. Follows a **star sch
                     │ customer_state │
                     └───────┬────────┘
                             │
-┌────────────────┐  ┌───────┴────────┐  ┌────────────────┐
-│  dim_products  │  │   fact_sales   │  │  dim_sellers   │
-│────────────────│  │────────────────│  │────────────────│
-│ product_id  PK │──│ sales_key   PK │──│ seller_id   PK │
-│ category_name  │  │ order_id       │  │ seller_city    │
-│ category_eng   │  │ customer_id FK │  │ seller_state   │
-│ weight_g       │  │ product_id  FK │  └────────────────┘
-│ dimensions     │  │ seller_id   FK │
-└────────────────┘  │ order_status   │
-                    │ purchased_at   │
-                    │ price          │
-                    │ freight_value  │
-                    │ total_amount   │
+┌────────────────┐  ┌───────┴────────────────┐  ┌────────────────┐
+│  dim_products  │  │      fact_sales        │  │  dim_sellers   │
+│────────────────│  │────────────────────────│  │────────────────│
+│ product_id  PK │──│ sales_key           PK │──│ seller_id   PK │
+│ category_name  │  │ order_id               │  │ seller_city    │
+│ category_eng   │  │ customer_id         FK │  │ seller_state   │
+│ weight_g       │  │ product_id          FK │  └────────────────┘
+│ dimensions     │  │ seller_id           FK │
+└────────────────┘  │ purchased_date      FK │──┐
+                    │ delivered_date      FK │  │
+                    │ estimated_deliv_dt  FK │  │
+                    │ order_status           │  │
+                    │ purchased_at           │  │
+                    │ price                  │  │
+                    │ freight_value          │  │
+                    │ total_amount           │  │
+                    └────────────────────────┘  │
+                                                │
+                    ┌────────────────┐          │
+                    │   dim_date     │──────────┘
+                    │────────────────│
+                    │ date_day    PK │
+                    │ year           │
+                    │ month          │
+                    │ quarter        │
+                    │ day_of_week    │
+                    │ is_weekend     │
                     └────────────────┘
 ```
 
@@ -230,16 +245,17 @@ Materialized as **tables** in the `olist_analytics` schema. Follows a **star sch
 | `unique`                        | Primary keys across all models                                                       | Ensure no duplicate records                 |
 | `not_null`                      | Primary/foreign keys, required fields                                                | Ensure completeness                         |
 | `accepted_values`               | `order_status`, `payment_type`, `review_score`                                       | Validate categorical values                 |
-| `relationships`                 | `fact_sales` → `dim_customers`, `dim_products`, `dim_sellers`                        | Ensure referential integrity in star schema |
+| `relationships`                 | `fact_sales` → `dim_customers`, `dim_products`, `dim_sellers`, `dim_date`            | Ensure referential integrity in star schema |
 | `expression_is_true`            | `price >= 0`, `freight_value >= 0`, dimensions `> 0`                                 | Validate numeric ranges                     |
 | `unique_combination_of_columns` | `order_items` (order_id + order_item_id), `payments` (order_id + payment_sequential) | Validate composite keys                     |
 
 ### Custom Singular Tests
 
-| Test                                            | Description                                                                                              |
-| ----------------------------------------------- | -------------------------------------------------------------------------------------------------------- |
-| `assert_approved_after_purchased`               | Validates that `approved_at >= purchased_at` for all orders — enforces logical timestamp ordering        |
-| `assert_total_amount_equals_price_plus_freight` | Validates that `total_amount = price + freight_value` in `fact_sales` — enforces calculation correctness |
+| Test                                            | Description                                                                                                                                        |
+| ----------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `assert_approved_after_purchased`               | Validates that `approved_at >= purchased_at` for all orders — enforces logical timestamp ordering                                                  |
+| `assert_total_amount_equals_price_plus_freight` | Validates that `total_amount = price + freight_value` in `fact_sales` — enforces calculation correctness                                           |
+| `assert_fact_sales_dates_in_dim_date`           | Validates that all dates derived from order timestamps in `fact_sales` exist in `dim_date` — enforces referential integrity for the date dimension |
 
 ---
 
