@@ -40,7 +40,13 @@ This project builds a complete data pipeline for the [Olist Brazilian E-Commerce
 
 <img width="1236" height="431" alt="Week 5 Mini Pipeline Architecture Diagram-Copy of Page-1 drawio (1)" src="https://github.com/user-attachments/assets/f56b066d-ef6d-4ac4-a35a-01169f54f83f" />
 
-The entire pipeline runs inside **Docker**. Raw CSV files from the Kaggle Olist dataset are loaded into a PostgreSQL **Raw Schema** (`olist_raw`) by the Python ingestion script (`ingest_olist.py`). **Apache Airflow** orchestrates the workflow, triggering ingestion first, then handing off to **dbt** for transformation. dbt builds a **Staging Layer** of cleaned views in the `olist_staging` schema, then materializes dimensional and fact tables into a **Mart Layer** in the `olist_analytics` schema. The analytics schema is designed for downstream visualization tools such as Power BI.
+The entire pipeline runs inside **Docker**. Key components:
+
+- **Ingestion Layer** — `ingest_olist.py` reads 9 Kaggle Olist CSV files and loads them into a PostgreSQL **Raw Schema** (`olist_raw`).
+- **Orchestration Layer (Airflow)** — Apache Airflow orchestrates the end-to-end workflow: ingestion → dbt run → dbt test, running on a daily schedule.
+- **Staging Layer (dbt)** — dbt cleans and standardizes raw tables into views in the `olist_staging` schema.
+- **Mart Layer (dbt)** — dbt materializes dimensional and fact tables into the `olist_analytics` schema following a star schema design.
+- **Visualization** — The `olist_analytics` schema is ready for downstream BI tools such as Power BI.
 
 ---
 
