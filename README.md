@@ -40,7 +40,7 @@ This project builds a complete data pipeline for the [Olist Brazilian E-Commerce
 
 <img width="1236" height="431" alt="Week 5 Mini Pipeline Architecture Diagram-Copy of Page-1 drawio (1)" src="https://github.com/user-attachments/assets/f56b066d-ef6d-4ac4-a35a-01169f54f83f" />
 
-
+The entire pipeline runs inside **Docker**. Raw CSV files from the Kaggle Olist dataset are loaded into a PostgreSQL **Raw Schema** (`olist_raw`) by the Python ingestion script (`ingest_olist.py`). **Apache Airflow** orchestrates the workflow, triggering ingestion first, then handing off to **dbt** for transformation. dbt builds a **Staging Layer** of cleaned views in the `olist_staging` schema, then materializes dimensional and fact tables into a **Mart Layer** in the `olist_analytics` schema. The analytics schema is designed for downstream visualization tools such as Power BI.
 
 ---
 
@@ -173,8 +173,15 @@ Materialized as **tables** in the `olist_analytics` schema. Follows a **star sch
 
 **Star Schema Diagram:**
 
-<img width="1158" height="1162" alt="diagrams - Page 4" src="https://github.com/user-attachments/assets/a6476e5b-5207-45cd-8659-7237c0d8c015" />
+The mart layer follows a star schema with `fact_sales` at the center, linked to four dimension tables:
 
+- **`fact_sales`** — Keyed by `sales_key` (one row per order item). Contains foreign keys to all dimensions, order context (`order_item_id`, `order_status`, `purchased_at`, `delivered_to_customer_at`), and measures (`price`, `freight_value`, `total_amount`).
+- **`dim_customers`** — Customer location attributes: `customer_city`, `customer_state`.
+- **`dim_products`** — Product catalog with `category_name`, English translation, and physical measurements (`weight_g`, `length_cm`, `height_cm`, `width_cm`).
+- **`dim_sellers`** — Seller location attributes: `seller_city`, `seller_state`.
+- **`dim_date`** — Calendar dimension derived from order timestamps, with `year`, `month`, `quarter`, `day_of_week`, and `is_weekend`.
+
+<img width="1158" height="1162" alt="diagrams - Page 4" src="https://github.com/user-attachments/assets/a6476e5b-5207-45cd-8659-7237c0d8c015" />
 
 ---
 
@@ -303,5 +310,3 @@ python ingest_olist.py
 | **Airflow write permissions to dbt target** — Airflow worker couldn't write compiled dbt artifacts to the mounted volume       | Set `--target-path /tmp/dbt_target` and `DBT_LOG_PATH=/tmp` to write to writable paths inside the container                                        |
 | **Docker socket access for DockerOperator** — Airflow needed to launch sibling containers                                      | Mounted `/var/run/docker.sock` into the Airflow containers and added the `airflow` user to a `docker` group in the Dockerfile                      |
 | **Source path mismatch** — Ingestion script used a hardcoded relative path instead of the parameterized `source_path` argument | Removed the hardcoded `source_path = "./airflow/datasets"` inside the function and properly used the function parameter                            |
-
-
