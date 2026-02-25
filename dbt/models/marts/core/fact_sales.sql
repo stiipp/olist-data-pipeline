@@ -26,10 +26,7 @@ final as (
         oi.order_item_id,
         o.order_status,
         o.purchased_at,
-        o.approved_at,
-        o.delivered_to_carrier_at,
         o.delivered_to_customer_at,
-        o.estimated_delivery_at,
         
         -- Measures
         oi.price,
