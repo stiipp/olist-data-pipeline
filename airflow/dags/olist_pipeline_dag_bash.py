@@ -30,7 +30,7 @@ dag = DAG(
     'olist_ecommerce_pipeline_bash',
     default_args=default_args,
     description='End-to-end Olist pipeline: Ingest → Transform → Test',
-    schedule_interval=None,  # Manual trigger only
+    schedule_interval='@daily',
     catchup=False,
     tags=['olist', 'dbt', 'ecommerce'],
 )
