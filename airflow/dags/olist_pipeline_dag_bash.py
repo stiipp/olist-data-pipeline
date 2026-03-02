@@ -45,7 +45,7 @@ ingest_task = BashOperator(
 # Task 2: Run dbt models 
 dbt_run_task = BashOperator(
     task_id='dbt_run',
-    bash_command='cd /opt/airflow/dbt && dbt run --profiles-dir . --target prod --target-path /tmp/dbt_target',
+    bash_command='cd /opt/airflow/dbt && DBT_LOG_PATH=/tmp dbt run --profiles-dir . --target prod --target-path /tmp/dbt_target',
     dag=dag,
 )
 

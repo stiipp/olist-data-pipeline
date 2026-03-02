@@ -147,17 +147,8 @@ models:
       - name: purchased_at
         description: "Timestamp when the order was placed"
 
-      - name: approved_at
-        description: "Timestamp when the order was approved"
-
-      - name: delivered_to_carrier_at
-        description: "Timestamp when the order was delivered to the carrier"
-
       - name: delivered_to_customer_at
         description: "Timestamp when the order was delivered to the customer"
-
-      - name: estimated_delivery_at
-        description: "Estimated delivery date for the order"
 
       - name: price
         description: "Item price"
