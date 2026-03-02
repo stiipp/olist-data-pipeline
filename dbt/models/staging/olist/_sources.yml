@@ -19,7 +19,7 @@ sources:
           - name: customer_city
             description: The city where the customer is located.
           - name: customer_state
-            description: The state where the customer is located.t
+            description: The state where the customer is located.
       - name: olist_orders
         description: This table contains information about the orders placed on the Olist platform. Each record represents a unique order, identified by an order_id, and includes details such as the customer_id of the customer who placed the order, the current status of the order, timestamps for when the order was placed, approved, delivered to the carrier, delivered to the customer, and the estimated delivery date.
         columns:
