@@ -1,7 +1,7 @@
 version: 2
 macros:
-  - name: generate_custom_schema
-    description: This macro returns the custom schema name for the Olist project, which is 'olist_staging'. It can be used in models to dynamically set the schema for staging tables.
+  - name: generate_schema_name
+    description: "Overrides dbt's default schema naming behavior. Returns the custom schema name directly (e.g., olist_staging, olist_analytics) instead of prepending the target schema (which would produce public_olist_staging). Called automatically by dbt when resolving the schema for every model."
 sources:
   - name: olist
     database: olist
@@ -19,7 +19,7 @@ sources:
           - name: customer_city
             description: The city where the customer is located.
           - name: customer_state
-            description: The state where the customer is located.t
+            description: The state where the customer is located.
       - name: olist_orders
         description: This table contains information about the orders placed on the Olist platform. Each record represents a unique order, identified by an order_id, and includes details such as the customer_id of the customer who placed the order, the current status of the order, timestamps for when the order was placed, approved, delivered to the carrier, delivered to the customer, and the estimated delivery date.
         columns:

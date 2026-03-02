@@ -14,3 +14,11 @@ data_tests:
       This validates the logical order progression of order lifecycle events.
     meta:
       severity: error
+
+  - name: assert_fact_sales_dates_in_dim_date
+    description: >
+      Validates that all date foreign keys in fact_sales (purchased_date, delivered_date,
+      estimated_delivery_date) exist in dim_date. Enforces referential integrity for the
+      date dimension.
+    meta:
+      severity: error

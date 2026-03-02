@@ -1,8 +1,8 @@
-name: "olist_project" # MUST match the name in profiles.yml
+name: "olist_project"
 version: "1.0.0"
 config-version: 2
 
-profile: "olist_project" # MUST match the name in profiles.yml
+profile: "olist_project"
 
 model-paths: ["models"]
 seed-paths: ["seeds"]
