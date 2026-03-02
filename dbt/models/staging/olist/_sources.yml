@@ -1,7 +1,7 @@
 version: 2
 macros:
-  - name: generate_custom_schema
-    description: This macro returns the custom schema name for the Olist project, which is 'olist_staging'. It can be used in models to dynamically set the schema for staging tables.
+  - name: generate_schema_name
+    description: "Overrides dbt's default schema naming behavior. Returns the custom schema name directly (e.g., olist_staging, olist_analytics) instead of prepending the target schema (which would produce public_olist_staging). Called automatically by dbt when resolving the schema for every model."
 sources:
   - name: olist
     database: olist
