@@ -13,7 +13,11 @@ final as (
         
         -- Product Category
         p.category_name,
-        c.category_name_english,
+        coalesce(
+            nullif(trim(c.category_name_english), ''),
+            nullif(trim(p.category_name), ''),
+            'Uncategorized'
+        ) as category_name_english,
         
         -- Product Attributes
         p.name_length,
