@@ -431,5 +431,3 @@ Using distinct schemas for each layer provides:
 - **Access control** — In a production setting, analysts can be granted `SELECT` on `olist_analytics` only, without exposing raw or intermediate data.
 - **Clarity** — Anyone inspecting the database immediately understands which tables are raw, which are intermediate, and which are analyst-ready.
 - **dbt convention** — Separating staging and marts into different schemas is a widely adopted dbt best practice, making the project structure familiar to other dbt users.
-
-test
