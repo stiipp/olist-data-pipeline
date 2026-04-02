@@ -68,6 +68,7 @@ The entire pipeline runs inside **Docker**. Key components:
 
 ```
 olist-ecommerce-data-pipeline/
+├── .env.example                    # Example environment variables
 ├── docker-compose.example.yml      # Example Docker Compose template
 ├── airflow/
 │   ├── Dockerfile                  # Airflow image with dbt + Docker provider
@@ -78,7 +79,7 @@ olist-ecommerce-data-pipeline/
 │   └── logs/                       # Airflow task logs
 ├── dbt/
 │   ├── dbt_project.yml             # dbt project config
-│   ├── profiles.yml.example        # Example connection profile
+│   ├── profiles.yml.example        # Example dbt connection profile
 │   ├── packages.yml                # dbt_utils dependency
 │   ├── macros/
 │   │   └── get_custom_schema.sql   # Custom schema naming macro
@@ -278,7 +279,7 @@ Both dbt tasks use `DBT_LOG_PATH=/tmp` and `--target-path /tmp/dbt_target` to av
    cp dbt/profiles.yml.example dbt/profiles.yml
    ```
 
-   `docker-compose.yml` and `dbt/profiles.yml` are intentionally local-only and should not be committed.
+   The `.example` files are the safe templates kept in Git. The copied files (`.env`, `docker-compose.yml`, and `dbt/profiles.yml`) are your local working configs and should not be committed.
 
 3. **Start all services:**
 
