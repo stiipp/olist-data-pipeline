@@ -68,7 +68,7 @@ The entire pipeline runs inside **Docker**. Key components:
 
 ```
 olist-ecommerce-data-pipeline/
-├── docker-compose.yml              # Multi-service Docker setup
+├── docker-compose.example.yml      # Example Docker Compose template
 ├── airflow/
 │   ├── Dockerfile                  # Airflow image with dbt + Docker provider
 │   ├── requirements.txt            # Python deps for Airflow workers
@@ -78,7 +78,7 @@ olist-ecommerce-data-pipeline/
 │   └── logs/                       # Airflow task logs
 ├── dbt/
 │   ├── dbt_project.yml             # dbt project config
-│   ├── profiles.yml                # Connection profiles (dev / prod)
+│   ├── profiles.yml.example        # Example connection profile
 │   ├── packages.yml                # dbt_utils dependency
 │   ├── macros/
 │   │   └── get_custom_schema.sql   # Custom schema naming macro
@@ -270,7 +270,17 @@ Both dbt tasks use `DBT_LOG_PATH=/tmp` and `--target-path /tmp/dbt_target` to av
    cd olist-ecommerce-data-pipeline
    ```
 
-2. **Start all services:**
+2. **Create your local config files:**
+
+   ```bash
+   cp .env.example .env
+   cp docker-compose.example.yml docker-compose.yml
+   cp dbt/profiles.yml.example dbt/profiles.yml
+   ```
+
+   `docker-compose.yml` and `dbt/profiles.yml` are intentionally local-only and should not be committed.
+
+3. **Start all services:**
 
    ```bash
    docker compose up -d --build
@@ -283,11 +293,11 @@ Both dbt tasks use `DBT_LOG_PATH=/tmp` and `--target-path /tmp/dbt_target` to av
    - **python-app** container (starter Python image from project template, restarts on failure)
    - **dbt** container (idle, for manual dbt commands)
 
-3. **Access the Airflow UI:**
+4. **Access the Airflow UI:**
 
    Open [http://localhost:8080](http://localhost:8080) and log in:
-   - Username: `admin`
-   - Password: `admin`
+   - Username: value from `AIRFLOW_ADMIN_USERNAME` in `.env`
+   - Password: value from `AIRFLOW_ADMIN_PASSWORD` in `.env`
 
 ### Running the Pipeline
 
